@@ -56,6 +56,17 @@ def periodic_task(run_every, **task_kwargs):
     - `celery.schedules.crontab`: interpreted as an interval using crontab notation.
     - `celery.schedules.solar`: interpreted as an interval based on solar occurences.
 
+    ### Example
+
+    ```
+        from django_celery_beat.decorators import periodic_task
+        from datetime import timedelta
+
+        @periodic_task(run_every=timedelta(minutes=5))
+        def say_hello():
+            print("Hello, world!")
+    ```
+
     ### Resources
 
     Info on crontab scheduling:

@@ -6,27 +6,32 @@ from celery.app import app_or_default
 
 __all__ = ["periodic_task"]
 
+_app: Celery = app_or_default()
 
 # A list of periodic tasks that are to be connected when Celery is ready.
 # The tasks are stored as a list of (*arg, **kwarg) tuples.
-_periodic_tasks = None
+_periodic_tasks = []
 
 
 def _add_periodic_task(*args, **kwargs):
-    """Queues a periodic task to be registered after Celery has finished initializing."""
+    """
+    Queues a periodic task to be registered after Celery has finished initializing,
+    or registers it immediately if Celery is ready.
+    """
     global _periodic_tasks
 
-    if not _periodic_tasks:
-        _periodic_tasks = []
+    # No need to queue tasks, they can be added immediately.
+    if _app.configured:
+        _register_periodic_task(_app, *args, **kwargs)
+    else:
+        # Register the signal callback the first time a task is queued.
+        if not _periodic_tasks:
+            _app.on_after_configure.connect(_register_all_periodic_tasks)
 
-        # Connect to a Celery signal (once) to know when it's safe to register the tasks.
-        app: Celery = app_or_default()
-        app.on_after_configure.connect(_register_periodic_tasks)
-
-    _periodic_tasks.append((args, kwargs))
+        _periodic_tasks.append((args, kwargs))
 
 
-def _register_periodic_tasks(sender: Celery, **kwargs):
+def _register_all_periodic_tasks(sender: Celery, **kwargs):
     """
     Registers each task that was queued by _add_periodic_task. While it would be
     convenient to just do this directly in the `periodic_task` decorator, the problem
@@ -37,10 +42,14 @@ def _register_periodic_tasks(sender: Celery, **kwargs):
 
     # Add each task.
     for task in _periodic_tasks:
-        sender.add_periodic_task(*task[0], **task[1])
+        _register_periodic_task(sender, *task[0], **task[1])
 
-    # No longer needed.
     _periodic_tasks = None
+
+
+def _register_periodic_task(app: Celery, *task_args, **task_kwargs):
+    """Registers a single periodic task."""
+    app.add_periodic_task(*task_args, **task_kwargs)
 
 
 def periodic_task(run_every, **task_kwargs):

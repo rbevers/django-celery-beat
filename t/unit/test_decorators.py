@@ -1,8 +1,5 @@
-import types
 from unittest import mock, TestCase
 
-import celery.local
-from celery import Celery
 from django_celery_beat.decorators import (
     periodic_task,
     _periodic_tasks,

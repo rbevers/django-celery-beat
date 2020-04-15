@@ -31,7 +31,7 @@ def _add_periodic_task(*args, **kwargs):
         _periodic_tasks.append((args, kwargs))
 
 
-def _register_all_periodic_tasks(sender: Celery, **kwargs):
+def _register_all_periodic_tasks(*args, **kwargs):
     """
     Registers each task that was queued by _add_periodic_task. While it would be
     convenient to just do this directly in the `periodic_task` decorator, the problem
@@ -42,14 +42,14 @@ def _register_all_periodic_tasks(sender: Celery, **kwargs):
 
     # Add each task.
     for task in _periodic_tasks:
-        _register_periodic_task(sender, *task[0], **task[1])
+        _register_periodic_task(*task[0], **task[1])
 
     _periodic_tasks = None
 
 
-def _register_periodic_task(app: Celery, *task_args, **task_kwargs):
+def _register_periodic_task(*task_args, **task_kwargs):
     """Registers a single periodic task."""
-    app.add_periodic_task(*task_args, **task_kwargs)
+    _app.add_periodic_task(*task_args, **task_kwargs)
 
 
 def periodic_task(run_every, **task_kwargs):
@@ -87,12 +87,10 @@ def periodic_task(run_every, **task_kwargs):
     https://docs.celeryproject.org/en/v4.1.0/userguide/periodic-tasks.html#solar-schedules
     """
 
-    app: Celery = app_or_default()
-
     def wrapper(task_func):
         # Wrap the decorated function to convert it into a celery task while also
         # preserving its original properties so that a celery worker can find it.
-        @app.task
+        @_app.task
         @functools.wraps(task_func)
         def wrapped_task(*args, **kwargs):
             return task_func(*args, **kwargs)

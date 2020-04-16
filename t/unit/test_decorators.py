@@ -59,7 +59,7 @@ class PeriodicTaskDecoratorTests(TestCase):
         def fn1():
             pass
 
-        @periodic_task(run_every=456, kwarg1="test1", kwarg2=555)
+        @periodic_task(run_every=456, name="test-task", max_retries=3)
         def fn2():
             pass
 
@@ -74,5 +74,5 @@ class PeriodicTaskDecoratorTests(TestCase):
         self.assertEqual(add_periodic_task_mock.call_args_list[1][0], (456, fn2))
         self.assertEqual(
             add_periodic_task_mock.call_args_list[1][1],
-            {"kwarg1": "test1", "kwarg2": 555},
+            {"name": "test-task", "max_retries": 3},
         )

@@ -58,6 +58,9 @@ def periodic_task(run_every, **task_kwargs):
 
     `run_every` specifies when or how often the periodic task will be scheduled to run.
 
+    `**task_kwargs` are any additional keyword arguments that Celery accepts for tasks.
+    See the 'Resources' section for a list of options.
+
     It supports several different types:
 
     - `float`: interpreted as seconds.
@@ -77,6 +80,10 @@ def periodic_task(run_every, **task_kwargs):
     ```
 
     ### Resources
+
+    Info on task keyword arguments:
+
+    https://docs.celeryproject.org/en/v4.1.0/userguide/tasks.html#list-of-options
 
     Info on crontab scheduling:
 

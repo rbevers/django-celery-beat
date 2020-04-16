@@ -22,7 +22,7 @@ def _add_periodic_task(*args, **kwargs):
 
     # No need to queue tasks, they can be added immediately.
     if _app.configured:
-        _register_periodic_task(*args, **kwargs)
+        _app.add_periodic_task(*args, **kwargs)
     else:
         # Register the signal callback the first time a task is queued.
         if not _periodic_tasks:
@@ -42,14 +42,9 @@ def _register_all_periodic_tasks(*args, **kwargs):
 
     # Add each task.
     for task in _periodic_tasks:
-        _register_periodic_task(*task[0], **task[1])
+        _app.add_periodic_task(*task[0], **task[1])
 
     _periodic_tasks.clear()
-
-
-def _register_periodic_task(*task_args, **task_kwargs):
-    """Registers a single periodic task."""
-    _app.add_periodic_task(*task_args, **task_kwargs)
 
 
 def periodic_task(run_every, **task_kwargs):

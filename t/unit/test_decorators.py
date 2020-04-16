@@ -37,8 +37,8 @@ class PeriodicTaskDecoratorTests(TestCase):
         self.assertEqual(kwargs, {"kwarg_test": "blah"})
 
     @mock.patch("django_celery_beat.decorators._app.configured", True)
-    @mock.patch("django_celery_beat.decorators._register_periodic_task")
-    def test_task_registered_immediately_when_app_ready(self, register_mock):
+    @mock.patch("django_celery_beat.decorators._app.add_periodic_task")
+    def test_task_registered_immediately_when_app_ready(self, add_periodic_task_mock):
         """Test that when Celery is ready the task is registered immediately and not added to the queue."""
 
         @periodic_task(run_every=123)
@@ -46,12 +46,12 @@ class PeriodicTaskDecoratorTests(TestCase):
             pass
 
         self.assertEqual(len(_periodic_tasks), 0)
-        self.assertEqual(register_mock.call_count, 1)
-        self.assertEqual(register_mock.call_args[0], (123, fn))
+        self.assertEqual(add_periodic_task_mock.call_count, 1)
+        self.assertEqual(add_periodic_task_mock.call_args[0], (123, fn))
 
     @mock.patch("django_celery_beat.decorators._app.configured", False)
-    @mock.patch("django_celery_beat.decorators._register_periodic_task")
-    def test_all_tasks_registered(self, register_mock):
+    @mock.patch("django_celery_beat.decorators._app.add_periodic_task")
+    def test_all_tasks_registered(self, add_periodic_task_mock):
         """Test that all tasks in the queue are registered and the queue is cleared."""
 
         @periodic_task(run_every=123)
@@ -67,6 +67,6 @@ class PeriodicTaskDecoratorTests(TestCase):
         _register_all_periodic_tasks()
 
         self.assertEqual(len(_periodic_tasks), 0)
-        self.assertEqual(register_mock.call_count, 2)
-        self.assertEqual(register_mock.call_args_list[0][0], (123, fn1))
-        self.assertEqual(register_mock.call_args_list[1][0], (456, fn2))
+        self.assertEqual(add_periodic_task_mock.call_count, 2)
+        self.assertEqual(add_periodic_task_mock.call_args_list[0][0], (123, fn1))
+        self.assertEqual(add_periodic_task_mock.call_args_list[1][0], (456, fn2))

@@ -6,7 +6,7 @@ from celery.app import app_or_default
 
 __all__ = ["periodic_task"]
 
-_app: Celery = app_or_default()
+_app = app_or_default()  # type: Celery
 
 # A list of periodic tasks that are to be connected when Celery is ready.
 # The tasks are stored as a list of (*arg, **kwarg) tuples.

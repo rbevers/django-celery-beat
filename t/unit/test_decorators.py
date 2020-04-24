@@ -32,16 +32,16 @@ class PeriodicTaskDecoratorTests(TestCase):
         self.assertTrue(hasattr(fn_test_func_becomes_celery_task, "delay"))
 
     @mock.patch("django_celery_beat.decorators._app.configured", False)
-    def test_test_has_kwargs_as_attributes(self):
+    def test_task_has_kwargs_as_attributes(self):
         """Test that additional kwargs to @periodic_task are set as attributes on the task."""
 
         @periodic_task(run_every=0, name="test-task", max_retries=3, foo="bar")
-        def fn_test_test_has_kwargs_as_attributes():
+        def fn_test_task_has_kwargs_as_attributes():
             pass
 
-        self.assertEqual(fn_test_test_has_kwargs_as_attributes.name, "test-task")
-        self.assertEqual(fn_test_test_has_kwargs_as_attributes.max_retries, 3)
-        self.assertEqual(fn_test_test_has_kwargs_as_attributes.foo, "bar")
+        self.assertEqual(fn_test_task_has_kwargs_as_attributes.name, "test-task")
+        self.assertEqual(fn_test_task_has_kwargs_as_attributes.max_retries, 3)
+        self.assertEqual(fn_test_task_has_kwargs_as_attributes.foo, "bar")
 
     @mock.patch("django_celery_beat.decorators._app.configured", False)
     def test_unbound_task_called_directly(self):
